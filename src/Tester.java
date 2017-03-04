@@ -7,9 +7,10 @@ public class Tester {
 
     public static void main(String[] args) {
 //        HandProfile testProfile = new HandProfile("Nipuna", new float[]{1, 2, 3, 4, 5}, new float[]{11, 22, 33, 44, 55}, new float[]{111, 222, 333, 444, 555});
-        HandProfile newProfile = core.createProfile();
-        p.writeLineToFile(core.prepareToSave(newProfile));
-        System.out.println(p.readAllFromFile());
+//        HandProfile newProfile = core.collectHandData(true);
+//        p.writeLineToFile(core.prepareToSave(newProfile));
+        HandProfile k = core.parseFromFile(p.readAllFromFile().get(0).toString());
+//        p.log(k.getFingerLength()[0]);
     }
 
 

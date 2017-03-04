@@ -6,15 +6,19 @@ public class BiometricCore {
     public String[] fingerNames = {"Thumb", "Index Finger", "Middle Finger", "Ring Finger", "Pinkie Finger",};
     private String delimiter = "%#%";
 
-    public HandProfile createProfile() {
-        String username;
+    public HandProfile collectHandData(boolean isCreate) {
+        String username = "";
         float[] fingerLength = new float[5]; //Array in order from thumb to pinky
         float[] fingerWidth = new float[5]; //Array in order from thumb to pinky
         float[] fingerTipToDivision = new float[5]; //Array in order from thumb to pinky
-        p.log("======= Create New Profile =======");
+        if (isCreate) {
+            p.log("======= Create New Profile =======");
+            p.log("Enter Your Name >");
+            username = p.userInputString();
+        } else {
+            p.log("======= Enter Your Hand Measurements =======");
+        }
 
-        p.log("Enter Your Name >");
-        username = p.userInputString();
         for (int i = 0; i < 5; i++) {
             String fingerName = fingerNames[i];
             p.log("Enter " + fingerName + " Length (cm) >");
@@ -46,6 +50,34 @@ public class BiometricCore {
             }
         }
         return prepairedStr;
+    }
+
+    public HandProfile parseFromFile(String rawLineFromFile) {
+        String[] parsed = rawLineFromFile.split(delimiter);
+        String username;
+        float[] fingerLength = new float[5]; //Array in order from thumb to pinky
+        float[] fingerWidth = new float[5]; //Array in order from thumb to pinky
+        float[] fingerTipToDivision = new float[5]; //Array in order from thumb to pinky
+        username = parsed[0];
+        fingerLength[0] = Float.parseFloat(parsed[1]);
+        fingerLength[1] = Float.parseFloat(parsed[2]);
+        fingerLength[2] = Float.parseFloat(parsed[3]);
+        fingerLength[3] = Float.parseFloat(parsed[4]);
+        fingerLength[4] = Float.parseFloat(parsed[5]);
+//--------------
+        fingerWidth[0] = Float.parseFloat(parsed[6]);
+        fingerWidth[1] = Float.parseFloat(parsed[7]);
+        fingerWidth[2] = Float.parseFloat(parsed[8]);
+        fingerWidth[3] = Float.parseFloat(parsed[9]);
+        fingerWidth[4] = Float.parseFloat(parsed[10]);
+//--------------
+        fingerTipToDivision[0] = Float.parseFloat(parsed[11]);
+        fingerTipToDivision[1] = Float.parseFloat(parsed[12]);
+        fingerTipToDivision[2] = Float.parseFloat(parsed[13]);
+        fingerTipToDivision[3] = Float.parseFloat(parsed[14]);
+        fingerTipToDivision[4] = Float.parseFloat(parsed[15]);
+        HandProfile newProfile = new HandProfile(username, fingerLength, fingerWidth, fingerTipToDivision);
+        return newProfile;
     }
 
     public String insertInto(String oriStr, String newStr) {
