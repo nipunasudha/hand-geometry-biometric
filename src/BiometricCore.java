@@ -1,14 +1,15 @@
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-/**
- * Created by NIPUNA on 3/4/2017.
- */
 public class BiometricCore {
-    private static IO p = new IO();
+    private static IOUtils p = new IOUtils();
     public String[] fingerNames = {"Thumb", "Index Finger", "Middle Finger", "Ring Finger", "Pinkie Finger",};
     private String delimiter = "%#%";
+    private float threshold = 0.95f;
+
+    public BiometricCore(float threshold) {
+        this.threshold = threshold;
+    }
 
     public HandProfile collectHandData(boolean isCreate) {
         String username = "";
@@ -40,6 +41,7 @@ public class BiometricCore {
             p.log("Enter " + fingerName + " Tip To 1st Division Distance (cm) >");
             fingerTipToDivision[i] = p.userInputFloatValidate();
         }
+
         HandProfile newProfile = new HandProfile(username, fingerLength, fingerWidth, fingerTipToDivision);
         return newProfile;
     }
@@ -88,8 +90,30 @@ public class BiometricCore {
         return oriStr + this.delimiter + newStr;
     }
 
-    public float searchProfile(HandProfile handProfile) {
-        return 0;
+    public HandProfile searchProfile(HandProfile slaveProfile) {
+        float maxConfidence = 0;
+        HandProfile maxConfidenceProfile = null;
+        List listFromFile = p.readAllFromFile();
+        for (int i = 0; i < listFromFile.size(); i++) {
+            HandProfile masterProfile = parseFromFile(listFromFile.get(i).toString());
+            float confidence = compareProfile(slaveProfile, masterProfile);
+            if (maxConfidence < confidence) {
+                maxConfidence = confidence;
+                maxConfidenceProfile = masterProfile;
+            }
+
+        }
+
+
+        if (maxConfidence > threshold && maxConfidence > 0) {
+            p.log("Confidence: " + Float.toString(maxConfidence));
+            p.log("Username: " + maxConfidenceProfile.getUsername());
+            return maxConfidenceProfile;
+        } else {
+            p.log("No Match Found!");
+            return null;
+        }
+
     }
 
     public float compareProfile(HandProfile master, HandProfile slave) {
@@ -98,11 +122,11 @@ public class BiometricCore {
         List<Float> ratioList = new ArrayList<Float>();
         for (int j = 0; j < 5; j++) {
             ratio = master.getFingerLength()[j] / slave.getFingerLength()[j];
-            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+            ratioList.add(ratio <= 1 ? ratio : (1 / ratio));
             ratio = master.getFingerWidth()[j] / slave.getFingerWidth()[j];
-            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+            ratioList.add(ratio <= 1 ? ratio : (1 / ratio));
             ratio = master.getFingerTipToDivision()[j] / slave.getFingerTipToDivision()[j];
-            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+            ratioList.add(ratio <= 1 ? ratio : (1 / ratio));
 
         }
         confidance = calculateAverage(ratioList);

@@ -1,7 +1,7 @@
 import java.util.*;
 import java.io.*;
 
-public class IO {
+public class IOUtils {
     String saveFileLocation = "biometricProfiles.dat";
     String lineSeperator = System.getProperty("line.separator");
     Scanner reader = new Scanner(System.in);
