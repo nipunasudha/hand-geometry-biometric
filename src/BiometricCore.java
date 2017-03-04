@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Created by NIPUNA on 3/4/2017.
  */
@@ -88,7 +92,29 @@ public class BiometricCore {
         return 0;
     }
 
-    public float compareProfile(HandProfile handProfile) {
-        return 0;
+    public float compareProfile(HandProfile master, HandProfile slave) {
+        float confidance = 0;
+        float ratio;
+        List<Float> ratioList = new ArrayList<Float>();
+        for (int j = 0; j < 5; j++) {
+            ratio = master.getFingerLength()[j] / slave.getFingerLength()[j];
+            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+            ratio = master.getFingerWidth()[j] / slave.getFingerWidth()[j];
+            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+            ratio = master.getFingerTipToDivision()[j] / slave.getFingerTipToDivision()[j];
+            ratioList.add(ratio >= 1 ? ratio : (1 / ratio));
+
+        }
+        confidance = calculateAverage(ratioList);
+        return confidance;
+    }
+
+    public float calculateAverage(List<Float> list) {
+        Double sum = 0d;
+        for (Float vals : list) {
+            sum += (vals);
+        }
+        sum = sum / list.size();
+        return sum.floatValue();
     }
 }
